@@ -1,68 +1,40 @@
 # summit-data-lake-forge
 
-`summit-data-lake-forge` treats data engineering as a local verification problem. The C++ implementation is intentionally narrow, but the fixtures and notes make the behavior explicit.
+`summit-data-lake-forge` keeps a focused C++ implementation around data engineering. The project goal is to build a C++ toolkit that studies lake behavior through windowed input fixtures, with late-data behavior checks and bounded memory input sets.
 
-## Summit Data Lake Forge Checkpoints
+## Purpose
 
-Treat the compact fixture as the contract and the extended examples as a scratchpad. The code should stay boring enough that a change in behavior is obvious from the test output.
+I want this repository to be useful as a quick reading exercise: fixtures first, implementation second, verifier last.
 
-## What This Is For
+## Summit Data Lake Forge Review Notes
 
-I use this kind of project to make a rule visible before adding more machinery around it. The important part here is not the size of the codebase. It is that the input signals, scoring rule, fixture data, and expected output can all be checked in one sitting.
+`edge` and `recovery` are the cases worth reading first. They show the optimistic and cautious ends of the fixture.
 
-## Project Layout
+## What Is Covered
 
-- `src`: primary implementation
-- `tests`: verification harness
-- `fixtures`: compact golden scenarios
-- `examples`: expanded scenario set
-- `metadata`: project constants and verification metadata
-- `docs`: operations and extension notes
-- `scripts`: local verification and audit commands
+- `fixtures/domain_review.csv` adds cases for schema drift and lineage depth.
+- `metadata/domain-review.json` records the same cases in structured form.
+- `config/review-profile.json` captures the read order and the two review questions.
+- `examples/summit-data-lake-walkthrough.md` walks through the case spread.
+- The C++ code includes a review path for `partition skew` and `quality gap`.
+- `docs/field-notes.md` explains the strongest and weakest cases.
 
-## Useful Pieces
+## Implementation Notes
 
-- Includes extended examples for pipeline state, including `recovery` and `degraded`.
-- Documents quality gates tradeoffs in `docs/operations.md`.
-- Runs locally with a single verification command and no external credentials.
-- Stores project constants and verification metadata in `metadata/project.json`.
-- Adds a repository audit script that checks structure before running the language verifier.
+The core code exposes a scoring path and the added review layer uses `signal`, `slack`, `drag`, and `confidence`. The domain terms are `schema drift`, `lineage depth`, `partition skew`, and `quality gap`.
 
-## Architecture Notes
+The C++ code keeps the review rule close to the tests.
 
-The interesting part is the boundary between accepted and reviewed scenarios. Extended examples sit near that boundary so future edits can show whether the model became more permissive or more cautious. The C++ project uses a small library boundary and a compiled assertion harness.
-
-## Tooling
-
-Clone the repository, enter the directory, and run the verifier. No database server, cloud account, or token is required.
-
-## Case Study
-
-`examples/extended_cases.csv` adds six named cases. I kept the names plain so failures are easy to read in a terminal: baseline, pressure, surge, degraded, recovery, and boundary.
-
-## Local Workflow
+## Command
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1
 ```
 
-This runs the language-level build or test path against the compact fixture set.
+## Audit Path
 
-## Quality Gate
+The check exercises the source code and the review fixture. `edge` is the high score at 232; `recovery` is the low score at 148.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit.ps1
-```
+## Limits
 
-The audit command checks repository structure and README constraints before it delegates to the verifier.
-
-## Expansion Ideas
-
-- Add a short report command that prints the score breakdown for a single scenario.
-- Add malformed input fixtures so the failure path is as visible as the happy path.
-- Split the scoring constants into a typed configuration object and validate it before use.
-- Add one more data engineering fixture that focuses on a malformed or borderline input.
-
-## Scope
-
-This code is local-first. It makes no claim about deployed usage and avoids credentials, hosted state, and environment-specific setup.
+The repository is intentionally scoped to local checks. I would expand it by adding adversarial fixtures before adding features.
